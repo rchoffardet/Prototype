@@ -268,46 +268,32 @@ namespace C7GameData
 		public static TileDirection reversed(this TileDirection dir)
 		{
 			switch (dir) {
-			case TileDirection.NORTH:     return TileDirection.SOUTH;
-			case TileDirection.NORTHEAST: return TileDirection.SOUTHWEST;
-			case TileDirection.EAST:      return TileDirection.WEST;
-			case TileDirection.SOUTHEAST: return TileDirection.NORTHWEST;
-			case TileDirection.SOUTH:     return TileDirection.NORTH;
-			case TileDirection.SOUTHWEST: return TileDirection.NORTHEAST;
-			case TileDirection.WEST:      return TileDirection.EAST;
-			case TileDirection.NORTHWEST: return TileDirection.SOUTHEAST;
-			default: throw new ArgumentOutOfRangeException("Invalid TileDirection");
+				case TileDirection.NORTH:     return TileDirection.SOUTH;
+				case TileDirection.NORTHEAST: return TileDirection.SOUTHWEST;
+				case TileDirection.EAST:      return TileDirection.WEST;
+				case TileDirection.SOUTHEAST: return TileDirection.NORTHWEST;
+				case TileDirection.SOUTH:     return TileDirection.NORTH;
+				case TileDirection.SOUTHWEST: return TileDirection.NORTHEAST;
+				case TileDirection.WEST:      return TileDirection.EAST;
+				case TileDirection.NORTHWEST: return TileDirection.SOUTHEAST;
+				default: throw new ArgumentOutOfRangeException("Invalid TileDirection");
 			}
 		}
 
 		public static (int, int) toCoordDiff(this TileDirection dir)
 		{
 			switch (dir) {
-			case TileDirection.NORTH:     return ( 0, -2);
-			case TileDirection.NORTHEAST: return ( 1, -1);
-			case TileDirection.EAST:      return ( 2,  0);
-			case TileDirection.SOUTHEAST: return ( 1,  1);
-			case TileDirection.SOUTH:     return ( 0,  2);
-			case TileDirection.SOUTHWEST: return (-1,  1);
-			case TileDirection.WEST:      return (-2,  0);
-			case TileDirection.NORTHWEST: return (-1, -1);
-			default: throw new ArgumentOutOfRangeException("Invalid TileDirection");
+				case TileDirection.NORTH:     return ( 0, -2);
+				case TileDirection.NORTHEAST: return ( 1, -1);
+				case TileDirection.EAST:      return ( 2,  0);
+				case TileDirection.SOUTHEAST: return ( 1,  1);
+				case TileDirection.SOUTH:     return ( 0,  2);
+				case TileDirection.SOUTHWEST: return (-1,  1);
+				case TileDirection.WEST:      return (-2,  0);
+				case TileDirection.NORTHWEST: return (-1, -1);
+				default: throw new ArgumentOutOfRangeException("Invalid TileDirection");
 			}
 		}
-
-		// public static string shortName(this TileDirection dir) {
-		// 	switch (dir) {
-		// 	case TileDirection.NORTH:     return "N";
-		// 	case TileDirection.NORTHEAST: return "NE";
-		// 	case TileDirection.EAST:      return "E";
-		// 	case TileDirection.SOUTHEAST: return "SE";
-		// 	case TileDirection.SOUTH:     return "S";
-		// 	case TileDirection.SOUTHWEST: return "SW";
-		// 	case TileDirection.WEST:      return "W";
-		// 	case TileDirection.NORTHWEST: return "NW";
-		// 	default: throw new ArgumentOutOfRangeException("Invalid TileDirection");
-		// 	}
-		// }
 	}
 
 	public class TileOverlays {

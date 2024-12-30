@@ -4,7 +4,16 @@ using ConvertCiv3Media;
 
 public partial class PCXToGodot : GodotObject
 {
-	private readonly static byte CIV3_TRANSPARENCY_START = 254;
+	private const byte SHADOW_START_INDEX = 224;
+	private const byte CIVCOLOR_START_INDEX = 239;
+	private const byte TRANSPARENCY_START_INDEX = 254;
+	private const byte SHADOW_INDEX_RANGE = CIVCOLOR_START_INDEX - SHADOW_START_INDEX;
+	private const ushort MAX_PALETTE_SIZE = 256;
+
+	private const byte GREEN_BITSHIFT = 8;
+	private const byte BLUE_BITSHIFT = 16;
+	private const byte ALPHA_BITSHIFT = 24;
+	private const byte MAX_COLOR = 255;
 
 	public static ImageTexture getImageTextureFromPCX(Pcx pcx) {
 		Image ImgTxtr = ByteArrayToImage(pcx.ColorIndices, pcx.Palette, pcx.Width, pcx.Height);
@@ -37,15 +46,15 @@ public partial class PCXToGodot : GodotObject
 
 	public static ImageTexture getPureAlphaFromPCX(Pcx alphaPcx) {
 		int[] bufferData = new int[alphaPcx.Width * alphaPcx.Height];
-		int[] alphaData = new int[256];
-		for (int i = 0; i < 256; i++) {
+		int[] alphaData = new int[MAX_PALETTE_SIZE];
+		for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
 			alphaData[i] = alphaPcx.Palette[i, 0];
 		}
 		int dataIndex = 0;
 		for (int y = 0; y < alphaPcx.Height; y++) {
 			for (int x = 0; x < alphaPcx.Width; x++, dataIndex++) {
 				int index = alphaPcx.ColorIndexAt(x, y);
-				if (index >= CIV3_TRANSPARENCY_START) {
+				if (index >= TRANSPARENCY_START_INDEX) {
 					bufferData[dataIndex] = 0;
 				} else {
 					bufferData[dataIndex] = alphaData[index] << 24;
@@ -109,13 +118,13 @@ public partial class PCXToGodot : GodotObject
 		for (int i = 0; i < width * height; i++) {
 			int index = colorIndices[i];
 			bool tinted = index < 16 || (index < 64 && index % 2 == 0);
-			bool shadow = index >= 224 && index <= 239;
+			bool shadow = index >= SHADOW_START_INDEX && index <= CIVCOLOR_START_INDEX;
 			if (tinted) {
 				tintLayer[i] = whiteColorData[index];
 				baseLayer[i] = 0; // transparent
 			} else if (shadow) {
 				// shadow belongs to the base texture
-				baseLayer[i] = ((int)new Color(1.0f, 1.0f, 1.0f, (float)index - 224f / 239f - 224f).ToArgb32());
+				baseLayer[i] = ((int)new Color(1.0f, 1.0f, 1.0f, (float)(index - SHADOW_START_INDEX) / SHADOW_INDEX_RANGE).ToArgb32());
 				tintLayer[i] = 0; // transparent
 			} else {
 				baseLayer[i] = colorData[index];
@@ -125,7 +134,8 @@ public partial class PCXToGodot : GodotObject
 		return (getImageFromBufferData(width, height, baseLayer), getImageFromBufferData(width, height, tintLayer));
 	}
 
-        // Utility for loading a civilization color from an ntp file
+	// Utility for loading a civilization color from an ntp file
+	// Note that this retrieves the color of the (only) pixel, not a particular palette index.
 	public static Color GetColorFromPCX(Pcx pcx) {
 		int paletteLookupIdx = pcx.ColorIndexAt(0, 0);
 
@@ -149,23 +159,23 @@ public partial class PCXToGodot : GodotObject
 
 	private static int[] loadPalette(byte[,] palette, bool shadows) {
 		int Red, Green, Blue;
-		int Alpha = 255 << 24;
-		int[] ColorData = new int[256];
+		int Alpha = MAX_COLOR << ALPHA_BITSHIFT;
+		int[] ColorData = new int[MAX_PALETTE_SIZE];
 
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
 			Red = palette[i, 0];
-			Green = palette[i, 1] << 8;
-			Blue = palette[i, 2] << 16;
+			Green = palette[i, 1] << GREEN_BITSHIFT;
+			Blue = palette[i, 2] << BLUE_BITSHIFT;
 			ColorData[i] = Red + Green + Blue + Alpha;
 		}
 
-		for (int i = CIV3_TRANSPARENCY_START; i < 256; i++) {
+		for (int i = TRANSPARENCY_START_INDEX; i < MAX_PALETTE_SIZE; i++) {
 			ColorData[i] &= 0x00ffffff;
 		}
 
 		if (shadows) {
-			for (int i = 240; i < 256; i++) {
-				ColorData[i] = ((255 - i) * 16) << 24;
+			for (int i = SHADOW_START_INDEX+1; i < MAX_PALETTE_SIZE; i++) {
+				ColorData[i] = ((MAX_COLOR - i) * 16) << ALPHA_BITSHIFT;
 			}
 		}
 
@@ -173,9 +183,9 @@ public partial class PCXToGodot : GodotObject
 	}
 
 	private static int[] loadAlphaPalette(byte[,] palette, int[] ColorData) {
-		int[] AlphaData = new int[256];
+		int[] AlphaData = new int[MAX_PALETTE_SIZE];
 
-		for (int i = 0; i < 256; i++) {
+		for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
 			// Assumption based on menuButtonsAlpha.pcx: The palette in the alpha PCX always has the same red, green, and blue values (i.e. is grayscale).
 			// Examining it with breakpoints in my Java code, it appears it starts at 255, 255, 255, and goes down one at a time.  But this code
 			// doesn't assume that, it only assumes the grayscale aspect.  In theory, this should work for any transparency, 0 to 255.

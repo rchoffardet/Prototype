@@ -1,14 +1,14 @@
 using C7GameData;
 using Xunit;
 
+namespace C7GameDataTests;
+
 public class GameMapTest
 {
 	[Fact]
-	public void CityWith2ProductionPerTurn_ShouldReturn1TurnIf9_of_10ProductionDone()
+	public void DefaultGameMap_ShouldGenerateGameMap80TilesTall()
 	{
-		System.Random rng = new System.Random(12345);
 		GameMap gm = GameMap.Generate(new GameData());
-
 		Assert.Equal(80, gm.numTilesTall);
 	}
 }
