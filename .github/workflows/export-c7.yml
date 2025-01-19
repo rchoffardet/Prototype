@@ -24,6 +24,7 @@ on:
   push:
     branches:
     - 'Development'
+    - 'twrner/test-build-failure'
     # Add any long-lived branches that need CI here.
 
 
