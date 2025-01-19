@@ -58676,6 +58676,23 @@
       "experience": "Regular"
     },
     {
+      "id": "Warrior-1",
+      "prototype": "Warrior",
+      "owner": "player-2",
+      "previousLocation": {
+        "x": -1,
+        "y": -1
+      },
+      "currentLocation": {
+        "x": 57,
+        "y": 43
+      },
+      "hitPointsRemaining": 5,
+      "movePointsRemaining": 1,
+      "facingDirection": "north",
+      "experience": "Elite"
+    },
+    {
       "id": "Settler-2",
       "prototype": "Settler",
       "owner": "player-3",
@@ -58684,8 +58701,8 @@
         "y": -1
       },
       "currentLocation": {
-        "x": 63,
-        "y": 27
+        "x": 59,
+        "y": 43
       },
       "hitPointsRemaining": 3,
       "movePointsRemaining": 1,
@@ -58701,8 +58718,8 @@
         "y": -1
       },
       "currentLocation": {
-        "x": 63,
-        "y": 27
+        "x": 59,
+        "y": 43
       },
       "hitPointsRemaining": 3,
       "movePointsRemaining": 1,
@@ -58718,8 +58735,8 @@
         "y": -1
       },
       "currentLocation": {
-        "x": 63,
-        "y": 27
+        "x": 59,
+        "y": 43
       },
       "hitPointsRemaining": 3,
       "movePointsRemaining": 2,
