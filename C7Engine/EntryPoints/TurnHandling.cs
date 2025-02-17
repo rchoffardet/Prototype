@@ -185,8 +185,8 @@ namespace C7Engine {
 					city.SetItemBeingProduced(CityProductionAI.GetNextItemToBeProduced(city, producedItem));
 				}
 
-				city.owner.gold += (int)Math.Floor(city.CurrentCommerceYield() * city.owner.taxRate / 10.0);
-				city.owner.beakers += (int)Math.Floor(city.CurrentCommerceYield() * city.owner.scienceRate / 10.0);
+				city.owner.gold += city.CurrentCommerceYield().taxes;
+				city.owner.beakers += city.CurrentCommerceYield().beakers;
 			}
 		}
 

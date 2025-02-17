@@ -20,6 +20,15 @@ public partial class CityScreen : CenterContainer {
 	private Label culturePerTurn;
 	private Label totalCulture;
 
+	Theme yieldDetailsFontTheme = new();
+	FontFile yieldDetailsFont = new();
+
+	private Label foodDetails;
+	private Label productionDetails;
+	private Label commerceTaxesDetails;
+	private Label commerceScienceDetails;
+	private Label commerceHappinessDetails;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		background = new() {
@@ -42,6 +51,53 @@ public partial class CityScreen : CenterContainer {
 			OffsetTop = 4
 		});
 
+
+		// Load the font we'll use for the details.
+		//
+		// We skip the cache so that we can change the size without affecting other
+		// code using the same font.
+		yieldDetailsFont = ResourceLoader.Load<FontFile>("res://Fonts/NotoSans-Regular.ttf", null, ResourceLoader.CacheMode.Ignore);
+		yieldDetailsFont.FixedSize = 20;
+
+		yieldDetailsFontTheme.DefaultFont = yieldDetailsFont;
+		yieldDetailsFontTheme.SetColor("font_color", "Label", Colors.Black);
+		yieldDetailsFontTheme.SetFontSize("font_size", "Label", 20);
+
+		foodDetails = new Label() {
+			OffsetLeft = 290,
+			OffsetTop = 567,
+			Theme = yieldDetailsFontTheme,
+		};
+		background.AddChild(foodDetails);
+
+		productionDetails = new Label() {
+			OffsetLeft = 290,
+			OffsetTop = 520,
+			Theme = yieldDetailsFontTheme,
+		};
+		background.AddChild(productionDetails);
+
+		commerceTaxesDetails = new Label() {
+			OffsetLeft = 290,
+			OffsetTop = 620,
+			Theme = yieldDetailsFontTheme,
+		};
+		background.AddChild(commerceTaxesDetails);
+
+		commerceScienceDetails = new Label() {
+			OffsetLeft = 290,
+			OffsetTop = 653,
+			Theme = yieldDetailsFontTheme,
+		};
+		background.AddChild(commerceScienceDetails);
+
+		commerceHappinessDetails = new Label() {
+			OffsetLeft = 290,
+			OffsetTop = 685,
+			Theme = yieldDetailsFontTheme,
+		};
+		background.AddChild(commerceHappinessDetails);
+
 		this.Hide();
 	}
 
@@ -61,6 +117,9 @@ public partial class CityScreen : CenterContainer {
 						if (tile != null) {
 							HandleReassignment(tile);
 							RenderPopHeads(tileAssignmentLayer.city);
+							RenderFoodDetails(tileAssignmentLayer.city);
+							RenderCommerceDetails(tileAssignmentLayer.city);
+							RenderProductionDetails(tileAssignmentLayer.city);
 						}
 					}
 				}
@@ -160,6 +219,24 @@ public partial class CityScreen : CenterContainer {
 		tileAssignmentLayer.city = city.Value;
 		RenderPopHeads(city.Value);
 		RenderCulture(city.Value);
+		RenderFoodDetails(city.Value);
+		RenderCommerceDetails(city.Value);
+		RenderProductionDetails(city.Value);
+	}
+
+	private void RenderFoodDetails(City city) {
+		foodDetails.Text = $"{city.CurrentFoodYield()} food/turn, {city.FoodGrowthPerTurn()} surplus. {city.foodStored} stored. Growth in {city.TurnsUntilGrowth()} turns.";
+	}
+
+	private void RenderCommerceDetails(City city) {
+		CommerceBreakdown breakdown = city.CurrentCommerceYield();
+		commerceTaxesDetails.Text = $"{breakdown.taxes} gold/turn to taxes (0 corrupt)";
+		commerceScienceDetails.Text = $"{breakdown.beakers} gold/turn to science  (0 corrupt)";
+		commerceHappinessDetails.Text = $"{breakdown.happiness} gold/turn to happiness (0 corrupt)";
+	}
+
+	private void RenderProductionDetails(City city) {
+		productionDetails.Text = $"{city.CurrentProductionYield()} shields/turn  (0 corrupt). {city.shieldsStored} of {city.itemBeingProduced.shieldCost} stored. {city.TurnsUntilProductionFinished()} turns left.";
 	}
 
 	private void RenderCulture(City city) {

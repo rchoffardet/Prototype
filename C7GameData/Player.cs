@@ -136,7 +136,7 @@ namespace C7GameData {
 			// TODO: See this this whole equation can be configurable
 			int beakersPerTurn = 0;
 			foreach (City city in cities) {
-				beakersPerTurn += (int)Math.Floor(city.CurrentCommerceYield() * city.owner.scienceRate / 10.0);
+				beakersPerTurn += city.CurrentCommerceYield().beakers;
 			}
 
 			if (beakersPerTurn == 0) {

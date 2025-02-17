@@ -4,6 +4,12 @@ using System.Linq;
 using Serilog;
 
 namespace C7GameData {
+	public struct CommerceBreakdown {
+		public int taxes;
+		public int beakers;
+		public int happiness;
+	}
+
 	public class City {
 		public ID id { get; set; }
 		public Tile location { get; internal set; }
@@ -80,7 +86,7 @@ namespace C7GameData {
 		}
 
 		public void ComputeCityGrowth() {
-			foodStored += CurrentFoodYield() - size * 2;
+			foodStored += FoodGrowthPerTurn();
 			if (foodStored >= foodNeededToGrow) {
 				size++;
 				foodStored = 0;
@@ -123,17 +129,21 @@ namespace C7GameData {
 			return yield;
 		}
 
-		public int CurrentCommerceYield() {
-			// TODO: Split this into science, entertainment, etc.
-
+		public CommerceBreakdown CurrentCommerceYield() {
 			int yield = location.commerceYield(owner);
 			foreach (CityResident r in residents) {
 				yield += r.tileWorked.commerceYield(owner);
 			}
-			return yield;
+
+			CommerceBreakdown result = new CommerceBreakdown();
+			result.beakers = (int)Math.Floor(yield * owner.scienceRate / 10.0);
+			result.happiness = (int)Math.Floor(yield * owner.luxuryRate / 10.0);
+			result.taxes = yield - result.beakers - result.happiness;
+
+			return result;
 		}
 
-		private int FoodGrowthPerTurn() {
+		public int FoodGrowthPerTurn() {
 			return CurrentFoodYield() - size * 2;
 		}
 
