@@ -119,6 +119,14 @@ namespace C7GameData {
 			return "";
 		}
 
+		public int CalculateGoldPerTurn() {
+			int result = 0;
+			foreach (City city in cities) {
+				result += city.CurrentCommerceYield().taxes;
+			}
+			return result;
+		}
+
 		public int EstimateTurnsToResearch(Tech tech) {
 			// Cost formula from https://forums.civfanatics.com/threads/research-cost-formula-v1-29f.29485/.
 			// Research Cost = [MM * [10*COST * (1 - N/[CL*1.75])]/(CF * 10)] - progress

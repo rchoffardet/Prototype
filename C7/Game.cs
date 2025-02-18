@@ -239,14 +239,6 @@ public partial class Game : Node2D {
 					// F6 is the science advisor.
 					// TODO: Move the F* key strings to a set of constants/enum.
 					EmitSignal(SignalName.ShowSpecificAdvisor, "F6");
-					Player player = gameData.GetHumanPlayers()[0];
-					Tech tech = gameData.techs.Find(x => x.id == player.currentlyResearchedTech);
-
-					if (tech != null) {
-						EmitSignal(SignalName.UpdateTechProgress, tech.Name, player.EstimateTurnsToResearch(tech));
-					} else {
-						EmitSignal(SignalName.UpdateTechProgress, "Not selected", int.MaxValue);
-					}
 					break;
 				case MsgUpdateUiAfterSliderChange mUUASC:
 					// F1 is the science advisor.
@@ -374,17 +366,7 @@ public partial class Game : Node2D {
 	private void OnPlayerStartTurn() {
 		log.Information("Starting player turn");
 		using (var gameDataAccess = new UIGameDataAccess()) {
-			int turnNumber = TurnHandling.GetTurnNumber();
-			Player player = gameDataAccess.gameData.GetHumanPlayers()[0];
-
-			EmitSignal(SignalName.TurnStarted, turnNumber, player.gold, /*goldPerTurn=*/0);
-
-			Tech tech = gameDataAccess.gameData.techs.Find(x => x.id == player.currentlyResearchedTech);
-			if (tech != null) {
-				EmitSignal(SignalName.UpdateTechProgress, tech.Name, player.EstimateTurnsToResearch(tech));
-			} else {
-				EmitSignal(SignalName.UpdateTechProgress, "Not selected", int.MaxValue);
-			}
+			EmitSignal(SignalName.TurnStarted);
 			CurrentState = GameState.PlayerTurn;
 
 			GetNextAutoselectedUnit(gameDataAccess.gameData);
