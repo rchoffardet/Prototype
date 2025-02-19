@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 
 namespace C7GameData.Save {
+	// A class holding all the state of the relationship between two civs.
+	public class PlayerRelationship {
+		public bool atWar = false;
+	}
 
 	public class SavePlayer {
 		public ID id;
@@ -13,6 +17,9 @@ namespace C7GameData.Save {
 		public int cityNameIndex = 0;
 
 		public List<TileLocation> tileKnowledge = new List<TileLocation>();
+
+		// A map from player id to the relationship this player has with the other player.
+		public Dictionary<string, PlayerRelationship> playerRelationships = new();
 
 		// The list of techs known by this player.
 		public HashSet<ID> knownTechs = new();
@@ -71,6 +78,9 @@ namespace C7GameData.Save {
 					player.knownTechs.Add(techId);
 				}
 			}
+			foreach (KeyValuePair<string, PlayerRelationship> keyValuePair in this.playerRelationships) {
+				player.playerRelationships.Add(ID.FromString(keyValuePair.Key), keyValuePair.Value);
+			}
 
 			// Because of the custom setter we need to set the researched tech
 			// and then set the beakers and turns researched - otherwise they'd
@@ -105,6 +115,10 @@ namespace C7GameData.Save {
 			gold = player.gold;
 			beakers = player.beakers;
 			turnsResearched = player.turnsResearched;
+
+			foreach (KeyValuePair<ID, PlayerRelationship> keyValuePair in player.playerRelationships) {
+				playerRelationships.Add(keyValuePair.Key.ToString(), keyValuePair.Value);
+			}
 		}
 	}
 }

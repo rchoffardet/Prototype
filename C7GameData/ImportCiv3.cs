@@ -5,6 +5,8 @@ using Serilog;
 using QueryCiv3;
 using QueryCiv3.Biq;
 using C7GameData.Save;
+using System.Reflection;
+using System.ComponentModel;
 
 /*
   This will read a Civ3 sav into C7 native format for immediate use or saving to native JSON save
@@ -432,6 +434,22 @@ namespace C7GameData {
 
 				save.Players.Add(player);
 				i++;
+			}
+
+			// Now that we know all the players, fill in details about their
+			// relationship to each other.
+			i = 0;
+			foreach (QueryCiv3.Sav.LEAD leader in savData.Lead) {
+				List<int> contacts = leader.GetContact();
+				List<bool> warStatus = leader.GetWarStatuses();
+				for (int j = 0; j < contacts.Count; ++j) {
+					if (contacts[j] > 0) {
+						save.Players[i].playerRelationships.Add(save.Players[j].id.ToString(), new PlayerRelationship() {
+							atWar = warStatus[j],
+						});
+					}
+				}
+				++i;
 			}
 		}
 
@@ -918,7 +936,18 @@ namespace C7GameData {
 
 				_ => throw new ArgumentOutOfRangeException("Invalid spiral value" + spiral),
 			};
+		}
 
+		// A handy utility for trying to reverse engineer various structs when
+		// comparing SAV files.
+		private void DumpObject(string label, object o) {
+			Console.WriteLine(label);
+			foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(o)) {
+				Console.WriteLine($"\t{descriptor.Name}={descriptor.GetValue(o)}");
+			}
+			foreach (System.Reflection.FieldInfo fieldInfo in o.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)) {
+				Console.WriteLine($"\t{fieldInfo.Name}={fieldInfo.GetValue(o)}");
+			}
 		}
 	}
 }

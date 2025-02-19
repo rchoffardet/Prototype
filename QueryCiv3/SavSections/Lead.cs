@@ -1,18 +1,19 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
 namespace QueryCiv3.Sav {
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	public unsafe struct LEAD_LEAD {
-		private fixed byte UnknownBuffer[4];
+		private int UnknownBuffer;
 		public int CancelledDeal;
-		private fixed byte UnknownBuffer2[8];
+		private long UnknownBuffer2;
 		public int CaughtSpy;
-		private fixed byte UnknownBuffer3[4];
+		private int UnknownBuffer3;
 		public int Tribute;
-		private fixed byte UnknownBuffer4[8];
+		private long UnknownBuffer4;
 		public int Gift;
-		private fixed byte UnknownBuffer5[4];
+		private int UnknownBuffer5;
 		public int ICBM;
 		public int ICBMOther;
 		private fixed byte UnknownBuffer6[24];
@@ -55,11 +56,11 @@ namespace QueryCiv3.Sav {
 		public int Length;
 		public int PlayerID;
 		public int RaceID;
-		private fixed byte UnknownBuffer[4];
+		private int UnknownBuffer;
 		public int Power;
 		public int CapitalCity;
 		public int Difficulty;
-		private fixed byte UnknownBuffer2[8];
+		private long UnknownBuffer2;
 		public int GoldenAgeEndTurn; // -1 if GA not yet triggered
 
 		private fixed byte Flags[4];
@@ -103,13 +104,40 @@ namespace QueryCiv3.Sav {
 		public fixed int RefuseContactForTurns[32];
 		private fixed byte UnknownBuffer8[128];
 		private fixed int WarWearinessPoints[32];
+
 		private fixed bool WarStatus[32];
+
+		// Returns a list of booleans, where the i'th boolean being true means
+		// this leader is at war with the i'th leader.
+		public List<bool> GetWarStatuses() {
+			List<bool> result = new();
+			for (int i = 0; i < 32; ++i) {
+				result.Add(WarStatus[i]);
+			}
+			return result;
+		}
+
 		private fixed bool Embassies[32];
 		private fixed bool Spies[32];
 		private fixed bool FailedSpyMission[32];
 		private fixed int BorderViolation[32];
 		private fixed int GoldPerTurnTo[32];
+
 		private fixed int Contact[32];
+
+		// Returns a list of integers, where the i'th integer being non-zero
+		// means this leader has contact with the i'th leader.
+		//
+		// Sometimes the values are 1 or 3, it isn't clear what that difference
+		// means.
+		public List<int> GetContact() {
+			List<int> result = new();
+			for (int i = 0; i < 32; ++i) {
+				result.Add(Contact[i]);
+			}
+			return result;
+		}
+
 		private fixed int Agreements[32];
 		private fixed int Alliances[32];
 		private fixed int Embargoes[32];

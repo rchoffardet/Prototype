@@ -12,6 +12,9 @@ public partial class GameStatus : MarginContainer {
 
 	[Signal] public delegate void BlinkyEndTurnButtonPressedEventHandler();
 
+	[Export]
+	public PopupOverlay popupOverlay;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready() {
 		OffsetLeft = -(294 + 5);
