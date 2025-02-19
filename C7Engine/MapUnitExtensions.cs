@@ -6,6 +6,7 @@ namespace C7Engine {
 	using System.Linq;
 	using Pathing;
 	using C7GameData;
+	using C7GameData.Save;
 
 	//We should document why we're putting things in the extensions methods.  We discussed it a month or so ago, but I forget why at this point.
 	//Coming from an OO background, I'm wondering why these aren't on the MapUnit class... data access?  Modding?  Some other benefit?
@@ -286,6 +287,27 @@ namespace C7Engine {
 			// Destroy enemy city on tile
 			if (tile.HasCity && !unit.owner.IsAtPeaceWith(tile.cityAtTile.owner)) {
 				CityInteractions.DestroyCity(tile.XCoordinate, tile.YCoordinate);
+			}
+
+			// Check to see if we've discovered a new civ.
+			//
+			// TODO: this should really be based on interactions with our "visible"
+			// tiles. Also civ3 only counts border-based discovery from rank 1
+			// tiles, not rank 2+.
+			foreach (Tile t in tile.neighbors.Values) {
+				if (t.unitsOnTile.Count > 0) {
+					MaybeAddPlayerKnowledge(t.unitsOnTile[0].owner, unit.owner);
+				}
+				if (t.owningCity != null) {
+					MaybeAddPlayerKnowledge(t.owningCity.owner, unit.owner);
+				}
+			}
+		}
+
+		private static void MaybeAddPlayerKnowledge(Player a, Player b) {
+			if (a != b && !a.playerRelationships.ContainsKey(b.id)) {
+				a.playerRelationships.Add(b.id, new PlayerRelationship());
+				b.playerRelationships.Add(a.id, new PlayerRelationship());
 			}
 		}
 
