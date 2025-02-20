@@ -101,7 +101,6 @@ namespace C7Engine {
 				log.Information("Set defender AI for " + unit + " with destination of " + ai.destination);
 				unit.currentAIData = ai;
 			} else {
-
 				if (unit.unitType.categories.Contains("Sea")) {
 					ExplorerAIData ai = new ExplorerAIData();
 					ai.type = ExplorerAIData.ExplorationType.COASTLINE;

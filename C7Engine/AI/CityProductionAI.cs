@@ -47,10 +47,14 @@ namespace C7Engine {
 				float flatAdjustedScore = baseScore + flatAdjuster;
 				log.Debug($"  Flat-adjusted score for {unitPrototype} is {flatAdjustedScore}");
 
-
-				//Exclude naval units from land-only cities
+				// Exclude naval units from land-only cities
 				if (unitPrototype.categories.Contains("Sea") && !city.location.NeighborsWater()) {
 					flatAdjustedScore = 0.0f;
+				}
+
+				// Exclude settlers if we don't have anywhere to build a city.
+				if (unitPrototype.actions.Contains("unit_build_city") && SettlerLocationAI.findSettlerLocation(city.location, city.owner) == Tile.NONE) {
+					flatAdjustedScore = 0;
 				}
 
 				// Below here are multiplicative adjusters
