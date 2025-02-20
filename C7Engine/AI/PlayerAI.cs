@@ -63,6 +63,8 @@ namespace C7Engine {
 			//TODO: Use strategies, not names
 			if (unit.unitType.name == "Settler") {
 				return new SettlerAI(SettlerAI.MakeAiData(unit, player));
+			} else if (unit.unitType.name == "Worker") {
+				return new WorkerAI(WorkerAI.MakeAiData(unit, player));
 			} else if (unit.location.cityAtTile != null && unit.location.unitsOnTile.Count(u => u.unitType.defense > 0 && u != unit) == 0) {
 				return new DefenderAI(DefenderAI.MakeAiData(unit, player));
 			} else if (GetCombatAIIfUnitCanAttackNearbyBarbCamp(unit, player) is UnitAI unitAI && unitAI != null) {

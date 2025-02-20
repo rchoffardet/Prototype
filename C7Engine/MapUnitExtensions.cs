@@ -369,6 +369,8 @@ namespace C7Engine {
 				unit.location = newLoc;
 				unit.movementPoints.onUnitMove(movementCost);
 				unit.animate(MapUnit.AnimatedAction.RUN, wait);
+			} else {
+				return false;
 			}
 			return true;
 		}
@@ -399,6 +401,7 @@ namespace C7Engine {
 			// Set unit's hit points to zero to indicate that it's no longer alive. Ultimately we may not want to do this. I'm only doing it right
 			// now since this way all the UI needs to do to check if the selected unit has been destroyed is to check its hit points.
 			unit.hitPointsRemaining = 0;
+			unit.movementPoints.onConsumeAll();
 
 			// EngineStorage.animTracker.endAnimation(unit, false);   TODO: Must send message instead of call directly
 			unit.location.unitsOnTile.Remove(unit);

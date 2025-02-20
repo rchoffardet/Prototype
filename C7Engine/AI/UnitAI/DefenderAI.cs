@@ -19,7 +19,7 @@ namespace C7Engine.AI.UnitAI {
 			defenderAI = d;
 		}
 
-		public bool PlayTurn(Player player, MapUnit unit) {
+		bool C7GameData.UnitAI.PlayTurnImpl(Player player, MapUnit unit) {
 			if (defenderAI.destination == unit.location) {
 				if (!unit.isFortified) {
 					unit.fortify();
@@ -30,7 +30,7 @@ namespace C7Engine.AI.UnitAI {
 
 				Tile nextTile = defenderAI.pathToDestination.Next();
 				if (nextTile != Tile.NONE) {
-					unit.move(unit.location.directionTo(nextTile));
+					return unit.move(unit.location.directionTo(nextTile));
 				} else {
 					//Got a crash due to trying to move to (or less likely from) Tile.NONE.
 					//However, from the logs, the destination was [15, 55], so somehow the path
@@ -40,8 +40,10 @@ namespace C7Engine.AI.UnitAI {
 					//likely affect its pathing.  Put a breakpoint here while debugging!
 					//This should be a higher severity Serilog error
 					log.Error("ERROR: Unit pathed via Tile.NONE");
+					return false;
 				}
 			}
+
 			return true;
 		}
 

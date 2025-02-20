@@ -37,7 +37,7 @@ namespace C7Engine {
 			settlerAi = d;
 		}
 
-		public bool PlayTurn(Player player, MapUnit unit) {
+		bool UnitAI.PlayTurnImpl(Player player, MapUnit unit) {
 start:
 			switch (settlerAi.goal) {
 				case SettlerAIData.SettlerGoal.BUILD_CITY:
@@ -73,6 +73,7 @@ start:
 							//TODO: #213 - If the path cannot be completed, we should create a different path instead.
 							//But to do that, the pathing algorithm will need to be enhanced to be aware of when rival units are in the way.
 							log.Warning("#213 - Could not get next part of path for unit " + settlerAi + ", " + ex.Message);
+							return false;
 						}
 					}
 					break;
@@ -91,6 +92,7 @@ start:
 					log.Warning("Unknown strategy of " + settlerAi.goal + " for unit");
 					break;
 			}
+
 			return true;
 		}
 

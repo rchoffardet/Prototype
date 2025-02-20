@@ -19,7 +19,7 @@ namespace C7Engine.AI.UnitAI {
 			combatAIData = d;
 		}
 
-		public bool PlayTurn(Player player, MapUnit unit) {
+		public bool PlayTurnImpl(Player player, MapUnit unit) {
 			//Move along the path to the place where the unit plans to enter combat.
 			//This might initiate combat.
 			//Once there are more combat goals than run to a barbarian camp,

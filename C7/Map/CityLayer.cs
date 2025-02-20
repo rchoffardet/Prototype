@@ -12,7 +12,9 @@ namespace C7.Map {
 
 		public void UpdateAfterCityDestruction(City city) {
 			citySceneLookup.Remove(city, out CityScene cityScene);
-			cityScene.Hide();
+			if (cityScene != null) {
+				cityScene.Hide();
+			}
 		}
 
 		public override void drawObject(LooseView looseView, GameData gameData, Tile tile, Vector2 tileCenter) {
