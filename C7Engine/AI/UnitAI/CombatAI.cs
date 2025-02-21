@@ -10,14 +10,16 @@ namespace C7Engine.AI.UnitAI {
 	/// This is likely to evolve significantly, and likely have sub-classes; this is the very first iteration.
 	/// This first iteration is focused on defeating barbarians.
 	/// </summary>
-	public class CombatAI : C7Engine.UnitAI {
-		private Tile target;
+	public class CombatAI : C7GameData.UnitAI {
+		private CombatAIData combatAIData;
 
 		private ILogger log = Log.ForContext<CombatAI>();
 
-		public bool PlayTurn(Player player, MapUnit unit) {
-			CombatAIData combatAIData = (CombatAIData)unit.currentAIData;
+		public CombatAI(CombatAIData d) {
+			combatAIData = d;
+		}
 
+		public bool PlayTurn(Player player, MapUnit unit) {
 			//Move along the path to the place where the unit plans to enter combat.
 			//This might initiate combat.
 			//Once there are more combat goals than run to a barbarian camp,
@@ -25,6 +27,10 @@ namespace C7Engine.AI.UnitAI {
 			unit.path = combatAIData.path;
 			unit.moveAlongPath();
 			return true;
+		}
+
+		public string SummarizePlan() {
+			return "CombateAI: " + combatAIData.ToString();
 		}
 	}
 }

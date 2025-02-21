@@ -3,12 +3,23 @@ using C7GameData.AIData;
 using Serilog;
 
 namespace C7Engine.AI.UnitAI {
-	class DefenderAI : C7Engine.UnitAI {
+	class DefenderAI : C7GameData.UnitAI {
+		private static ILogger log = Log.ForContext<DefenderAI>();
+		private DefenderAIData defenderAI;
 
-		private ILogger log = Log.ForContext<DefenderAI>();
+		public static DefenderAIData MakeAiData(MapUnit unit, Player player) {
+			DefenderAIData ai = new DefenderAIData();
+			ai.goal = DefenderAIData.DefenderGoal.DEFEND_CITY;
+			ai.destination = unit.location;
+			log.Information("Set defender AI for " + unit + " with destination of " + ai.destination);
+			return ai;
+		}
+
+		public DefenderAI(DefenderAIData d) {
+			defenderAI = d;
+		}
 
 		public bool PlayTurn(Player player, MapUnit unit) {
-			DefenderAIData defenderAI = (DefenderAIData)unit.currentAIData;
 			if (defenderAI.destination == unit.location) {
 				if (!unit.isFortified) {
 					unit.fortify();
@@ -32,6 +43,10 @@ namespace C7Engine.AI.UnitAI {
 				}
 			}
 			return true;
+		}
+
+		public string SummarizePlan() {
+			return "DefenderAI: " + defenderAI.ToString();
 		}
 	}
 }

@@ -8,11 +8,15 @@ using C7Engine.Pathing;
 using Serilog;
 
 namespace C7Engine {
-	public class ExplorerAI : UnitAI {
+	public class ExplorerAI : C7GameData.UnitAI {
 		private static ILogger log = Log.ForContext<ExplorerAI>();
+		public ExplorerAIData explorerData;
+
+		public ExplorerAI(ExplorerAIData d) {
+			explorerData = d;
+		}
 
 		public bool PlayTurn(Player player, MapUnit unit) {
-			ExplorerAIData explorerData = (ExplorerAIData)unit.currentAIData;
 			if (MovingToNewExplorationArea(explorerData)) {
 				return MoveToNextTileOnPath(explorerData, unit);
 			} else {
@@ -30,6 +34,10 @@ namespace C7Engine {
 				}
 			}
 			return false;
+		}
+
+		public string SummarizePlan() {
+			return "ExplorerAI: " + explorerData.ToString();
 		}
 
 		private static bool MoveToNextTileOnPath(ExplorerAIData explorerData, MapUnit unit) {

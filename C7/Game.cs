@@ -375,7 +375,7 @@ public partial class Game : Node2D {
 		log.Information("Starting player turn");
 		using (var gameDataAccess = new UIGameDataAccess()) {
 			int turnNumber = TurnHandling.GetTurnNumber();
-			Player player = gameDataAccess.gameData.GetHumanPlayers()[0];
+			Player player = controller;
 
 			EmitSignal(SignalName.TurnStarted, turnNumber, player.gold, /*goldPerTurn=*/0);
 
@@ -513,7 +513,9 @@ public partial class Game : Node2D {
 						if (tile.unitsOnTile.Count > 0) {
 							foreach (MapUnit unit in tile.unitsOnTile) {
 								log.Debug("  Unit on tile: " + unit);
-								log.Debug("  Strategy: " + unit.currentAIData);
+								if (unit.currentAI != null) {
+									log.Debug("  Strategy: " + unit.currentAI.SummarizePlan());
+								}
 							}
 						}
 					} else {

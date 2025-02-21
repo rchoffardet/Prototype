@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using C7GameData.AIData;
 
 namespace C7GameData {
 	/**
@@ -41,7 +40,7 @@ namespace C7GameData {
 
 		[JsonIgnore]
 		public List<string> availableActions = new List<string>();
-		public UnitAIData currentAIData;
+		public UnitAI currentAI;
 
 		public MapUnit(ID id) {
 			this.id = id;

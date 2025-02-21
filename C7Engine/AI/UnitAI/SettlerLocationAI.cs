@@ -125,14 +125,15 @@ namespace C7Engine {
 		/// <returns></returns>
 		public static bool SettlerAlreadyMovingTowardsTile(Tile tile, List<MapUnit> playerSettlers) {
 			foreach (MapUnit otherSettler in playerSettlers) {
-				if (otherSettler.currentAIData is SettlerAIData otherSettlerAI) {
-					if (otherSettlerAI.destination == tile) {
+				if (otherSettler.currentAI is SettlerAI otherSettlerAI) {
+					Tile otherDestination = ((SettlerAI)(otherSettler.currentAI)).settlerAi.destination;
+					if (otherDestination == tile) {
 						return true;
 					}
-					if (otherSettlerAI.destination.GetLandNeighbors().Exists(innerRingTile => innerRingTile == tile)) {
+					if (otherDestination.GetLandNeighbors().Exists(innerRingTile => innerRingTile == tile)) {
 						return true;
 					}
-					foreach (Tile innerRingTile in otherSettlerAI.destination.GetLandNeighbors()) {
+					foreach (Tile innerRingTile in otherDestination.GetLandNeighbors()) {
 						if (innerRingTile.GetLandNeighbors().Exists(outerRingTile => outerRingTile == tile)) {
 							return true;
 						}

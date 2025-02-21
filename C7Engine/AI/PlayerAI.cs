@@ -42,16 +42,14 @@ namespace C7Engine {
 				int attempts = 0;
 				int maxAttempts = 2;    //safety valve so we don't freeze the UI if SetAIForUnit returns something that fails
 				while (!unitDone) {
-					if (unit.currentAIData == null || attempts > 0) {
-						SetAIForUnit(unit, player);
+					if (unit.currentAI == null || attempts > 0) {
+						unit.currentAI = GetAIForUnit(unit, player);
 					}
 
-					UnitAI artificialIntelligence = getAIForUnitStrategy(unit.currentAIData);
-					unitDone = artificialIntelligence.PlayTurn(player, unit);
-
+					unitDone = unit.currentAI.PlayTurn(player, unit);
 					attempts++;
 					if (!unitDone && attempts >= maxAttempts) {
-						log.Warning($"Hit max AI attempts of {maxAttempts} for unit {unit} at {unit.location} without succeeding.  This indicates SetAIForUnit returned an impossible task, and should be debugged.");
+						log.Warning($"Hit max AI attempts of {maxAttempts} for unit {unit} at {unit.location} without succeeding.  This indicates GetAIForUnit returned an impossible task, and should be debugged.");
 						break;
 					}
 				}
@@ -60,58 +58,31 @@ namespace C7Engine {
 			}
 		}
 
-		public static void SetAIForUnit(MapUnit unit, Player player) {
+		public static UnitAI GetAIForUnit(MapUnit unit, Player player) {
 			//figure out an AI behavior
 			//TODO: Use strategies, not names
 			if (unit.unitType.name == "Settler") {
-				SettlerAIData settlerAiData = new SettlerAIData();
-				settlerAiData.goal = SettlerAIData.SettlerGoal.BUILD_CITY;
-				//If it's the starting settler, have it settle in place.  Otherwise, use an AI to find a location.
-				if (player.cities.Count == 0 && unit.location.cityAtTile == null) {
-					settlerAiData.destination = unit.location;
-					log.Information("No cities yet!  Set AI for unit to settler AI with destination of " + settlerAiData.destination);
-				} else {
-					settlerAiData.destination = SettlerLocationAI.findSettlerLocation(unit.location, player);
-					if (settlerAiData.destination == Tile.NONE) {
-						//This is possible if all tiles within 4 tiles of a city are either not land, or already claimed
-						//by another colonist.  Longer-term, the AI shouldn't be building settlers if that is the case,
-						//but right now we'll just spike the football to stop the clock and avoid building immediately next to another city.
-						settlerAiData.goal = SettlerAIData.SettlerGoal.JOIN_CITY;
-						log.Information("Set AI for unit to JOIN_CITY due to lack of locations to settle");
-					} else {
-						PathingAlgorithm algorithm = PathingAlgorithmChooser.GetAlgorithm(unit);
-						settlerAiData.pathToDestination = algorithm.PathFrom(unit.location, settlerAiData.destination);
-						log.Information("Set AI for unit to BUILD_CITY with destination of " + settlerAiData.destination);
-					}
-				}
-				unit.currentAIData = settlerAiData;
+				return new SettlerAI(SettlerAI.MakeAiData(unit, player));
 			} else if (unit.location.cityAtTile != null && unit.location.unitsOnTile.Count(u => u.unitType.defense > 0 && u != unit) == 0) {
-				DefenderAIData ai = new DefenderAIData();
-				ai.goal = DefenderAIData.DefenderGoal.DEFEND_CITY;
-				ai.destination = unit.location;
-				log.Information("Set defender AI for " + unit + " with destination of " + ai.destination);
-				unit.currentAIData = ai;
-			} else if (UnitCanAttackNearbyBarbCamp(unit, player)) {
+				return new DefenderAI(DefenderAI.MakeAiData(unit, player));
+			} else if (GetCombatAIIfUnitCanAttackNearbyBarbCamp(unit, player) is UnitAI unitAI && unitAI != null) {
 				log.Information("Set unit " + unit + " to take out barb camp");
+				return unitAI;
 			} else if (unit.unitType.name == "Catapult") {
 				//For now tell catapults to sit tight.  It's getting really annoying watching them pointlessly bombard barb camps forever
-				DefenderAIData ai = new DefenderAIData();
-				ai.goal = DefenderAIData.DefenderGoal.DEFEND_CITY;
-				ai.destination = unit.location;
-				log.Information("Set defender AI for " + unit + " with destination of " + ai.destination);
-				unit.currentAIData = ai;
+				return new DefenderAI(DefenderAI.MakeAiData(unit, player));
 			} else {
 				if (unit.unitType.categories.Contains("Sea")) {
 					ExplorerAIData ai = new ExplorerAIData();
 					ai.type = ExplorerAIData.ExplorationType.COASTLINE;
-					unit.currentAIData = ai;
 					log.Information("Set coastline exploration AI for " + unit);
+					return new ExplorerAI(ai);
 				} else if (unit.location.unitsOnTile.Exists((x) => x.unitType.categories.Contains("Sea"))) {
 					ExplorerAIData ai = new ExplorerAIData();
 					ai.type = ExplorerAIData.ExplorationType.ON_A_BOAT;
-					unit.currentAIData = ai;
 					//TODO: Actually put the unit on the boat
 					log.Information("Set ON_A_BOAT exploration AI for " + unit);
+					return new ExplorerAI(ai);
 				} else {
 					//Isn't a Settler.  If there's a city at the location, it's defended.  No boats involved.  What's our priority?
 					//If there is land to explore, we'll try to explore it.
@@ -122,8 +93,8 @@ namespace C7Engine {
 						//What type of exploration should we do?
 						int nearbyExplorers = 0;
 						foreach (MapUnit mapUnit in player.units) {
-							if (mapUnit.currentAIData is ExplorerAIData explorerAI) {
-								if (explorerAI.type == ExplorerAIData.ExplorationType.NEAR_CITIES) {
+							if (mapUnit.currentAI is ExplorerAI explorerAI) {
+								if (explorerAI.explorerData.type == ExplorerAIData.ExplorationType.NEAR_CITIES) {
 									nearbyExplorers++;
 								}
 							}
@@ -133,8 +104,8 @@ namespace C7Engine {
 						} else {
 							ai.type = ExplorerAIData.ExplorationType.RANDOM;
 						}
-						unit.currentAIData = ai;
 						log.Information($"Set {ai.type} exploration AI for {unit}");
+						return new ExplorerAI(ai);
 					} else {
 						//Nowhere to explore.  What to do now?
 						//Priority 1: Adequate defense of cities.
@@ -160,15 +131,15 @@ namespace C7Engine {
 						newUnitAIData.pathToDestination = algorithm.PathFrom(unit.location, newUnitAIData.destination);
 
 						log.Information($"Unit {unit} tasked with defending {nearestCityToDefend.name}");
-						unit.currentAIData = newUnitAIData;
+						return new DefenderAI(newUnitAIData);
 					}
 				}
 			}
 		}
 
-		private static bool UnitCanAttackNearbyBarbCamp(MapUnit unit, Player player) {
+		private static UnitAI GetCombatAIIfUnitCanAttackNearbyBarbCamp(MapUnit unit, Player player) {
 			if (unit.unitType.attack <= 0) {
-				return false;
+				return null;
 			}
 
 			List<Tile> reachableBarbCampsTiles = player.tileKnowledge.AllKnownTiles()
@@ -189,10 +160,9 @@ namespace C7Engine {
 
 				PathingAlgorithm algorithm = PathingAlgorithmChooser.GetAlgorithm(unit);
 				caid.path = algorithm.PathFrom(unit.location, closestBarbCamp);
-				unit.currentAIData = caid;
-				return true;
+				return new CombatAI(caid);
 			}
-			return false;
+			return null;
 		}
 
 		/**
@@ -225,32 +195,6 @@ namespace C7Engine {
 				}
 			}
 			return nearestCityToDefend;
-		}
-
-		/**
-		 * Medium-term solution to the problem of getting instances of the AI classes for polymorphic
-		 * methods.
-		 *
-		 * Only the data will be stored on save, so only the data is guaranteed to be on the unit.
-		 * There are several options - attach an instance whenever we need one, for example.
-		 * But the AI implementations should be singletons that behave differently based on the
-		 * data (and perhaps probability), so multiple instances doesn't really make sense.
-		 *
-		 * I fully expect this to evolve; at some point it might grab a Lua AI instead of a C# one
-		 * too, for example, and one AIData class might be able to call up multiple types of AIs.
-		 * It also likely will become mod-supporting someday, but we can't add everything on day one.
-		 **/
-		public static UnitAI getAIForUnitStrategy(UnitAIData aiData) {
-			if (aiData is SettlerAIData sai) {
-				return new SettlerAI();
-			} else if (aiData is DefenderAIData dai) {
-				return new DefenderAI();
-			} else if (aiData is ExplorerAIData eai) {
-				return new ExplorerAI();
-			} else if (aiData is CombatAIData cai) {
-				return new CombatAI();
-			}
-			throw new Exception("AI data not recognized" + aiData);
 		}
 	}
 }
