@@ -232,6 +232,56 @@ namespace C7GameData {
 			return riverNorth || riverNortheast || riverEast || riverSoutheast || riverSouth || riverSouthwest || riverWest || riverNorthwest;
 		}
 
+		public bool CanBeMined() {
+			return overlayTerrainType.miningBonus > 0 && !overlays.mine && !overlays.irrigation && cityAtTile == null;
+		}
+
+		public bool CanBeRoaded() {
+			return IsLand() && !overlays.road;
+		}
+
+		// TODO: This method doesn't handle two important irrigation cases:
+		//  - inland lakes/seas: we need to figure out what is fresh/salt water
+		//  - Electricity tech, to allow irrigating w/o fresh water access
+		public bool CanBeIrrigated(Player player) {
+			// Irrigation can't be done if there is no irrigation bonus for the 
+			// tile or if there's already an improvement or city on the tile.
+			if (overlayTerrainType.irrigationBonus == 0 ||
+				overlays.mine ||
+				overlays.irrigation ||
+				cityAtTile != null) {
+				return false;
+			}
+
+			// If a tile borders a river, it has fresh water access.
+			if (BordersRiver()) {
+				return true;
+			}
+
+			foreach (KeyValuePair<TileDirection, Tile> dirToTile in neighbors) {
+				// If a neighboring tile is irrigated, this tile has fresh water access.
+				if (dirToTile.Value.overlays.irrigation) {
+					return true;
+				}
+
+				// Special case, if we are neighboring the worker's city, check
+				// if the city can act as part of an irrigation chain.
+				if (dirToTile.Value.cityAtTile?.owner == player) {
+					if (dirToTile.Value.BordersRiver()) {
+						return true;
+					}
+
+					foreach (var (dir, tile) in dirToTile.Value.neighbors) {
+						if (tile.overlays.irrigation) {
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		}
+
 		//Convenience method for printing the yield
 		public string YieldString(Player player) {
 			return $"{foodYield(player)}/{productionYield(player)}/{commerceYield(player)})";
