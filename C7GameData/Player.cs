@@ -19,7 +19,7 @@ namespace C7GameData {
 
 		public List<MapUnit> units = new List<MapUnit>();
 		public List<City> cities = new List<City>();
-		public TileKnowledge tileKnowledge = new TileKnowledge();
+		public TileKnowledge tileKnowledge;
 
 		//Ordered list of priority data.  First is most important.
 		public List<StrategicPriority> strategicPriorityData = new List<StrategicPriority>();
@@ -85,7 +85,9 @@ namespace C7GameData {
 			return name;
 		}
 
-		public Player() { }
+		public Player(GameMap map) {
+			tileKnowledge = new TileKnowledge(cities, units, map);
+		}
 
 		public bool IsAtPeaceWith(Player other) {
 			// Right now it's a free-for-all but eventually we'll implement peace treaties and alliances

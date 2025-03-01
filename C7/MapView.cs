@@ -490,6 +490,7 @@ public partial class LooseView : Node2D {
 				}
 			}
 
+			gameDataAccess.gameData.GetHumanPlayers()[0].tileKnowledge.Compute();
 			foreach (LooseLayer layer in layers.FindAll(L => L.visible && !(L is FogOfWarLayer))) {
 				layer.onBeginDraw(this, gD);
 				foreach (VisibleTile vT in visibleTiles) {

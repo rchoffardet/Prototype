@@ -65,7 +65,7 @@ namespace C7Engine {
 					}
 				}
 
-				player.tileKnowledge.AddTilesToKnown(unit.location);
+				player.tileKnowledge.AddVisibilityTo(unit.location);
 			}
 		}
 

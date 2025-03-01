@@ -54,25 +54,24 @@ namespace C7GameData.Save {
 		public int turnsResearched = 0;
 
 		public Player ToPlayer(GameMap map, List<Civilization> civilizations) {
-			Player player = new Player{
-				id = id,
-				isBarbarians = barbarian,
-				isHuman = human,
-				hasPlayedThisTurn = hasPlayedCurrentTurn,
-				colorIndex = colorIndex,
-				civilization = civilization is not null ? civilizations.Find(civ => civ.name == civilization) : null,
-				cityNameIndex = cityNameIndex,
-				tileKnowledge = new TileKnowledge(),
-				knownTechs = knownTechs,
-				eraCivilopediaName = eraCivilopediaName,
-				luxuryRate = luxuryRate,
-				scienceRate = scienceRate,
-				taxRate = taxRate,
-				gold = gold,
-			};
-			foreach (TileLocation tile in tileKnowledge) {
-				player.tileKnowledge.AddTileToKnown(map.tileAt(tile.X, tile.Y));
-			}
+			Player player = new(map);
+			player.cities = new List<City>();
+			player.units = new List<MapUnit>();
+			player.id = id;
+			player.isBarbarians = barbarian;
+			player.isHuman = human;
+			player.hasPlayedThisTurn = hasPlayedCurrentTurn;
+			player.colorIndex = colorIndex;
+			player.civilization = civilization is not null ? civilizations.Find(civ => civ.name == civilization) : null;
+			player.cityNameIndex = cityNameIndex;
+			player.tileKnowledge = new TileKnowledge(player.cities, player.units, map);
+			player.knownTechs = knownTechs;
+			player.eraCivilopediaName = eraCivilopediaName;
+			player.luxuryRate = luxuryRate;
+			player.scienceRate = scienceRate;
+			player.taxRate = taxRate;
+			player.gold = gold;
+
 			foreach (ID techId in player.civilization.startingTechs) {
 				if (!player.knownTechs.Contains(techId)) {
 					player.knownTechs.Add(techId);

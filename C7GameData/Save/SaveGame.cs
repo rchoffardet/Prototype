@@ -127,6 +127,16 @@ namespace C7GameData.Save {
 				data.map.tileAt(city.location.XCoordinate, city.location.YCoordinate).cityAtTile = city;
 			}
 
+			// Once cities and unit are known, update tileKnowledge of each player
+			var index = 0;
+			data.players.ForEach(player => {
+				player.tileKnowledge = new TileKnowledge(player.cities, player.units, data.map);
+
+				foreach (TileLocation tile in Players[index++].tileKnowledge) {
+					player.tileKnowledge.AddKnowledgeOf(data.map.tileAt(tile.X, tile.Y));
+				}
+			});
+
 			// add references to map tiles after units and cities are defined
 			populateGameDataTileUnitsAndCities(data);
 

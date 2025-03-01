@@ -89,12 +89,12 @@ namespace C7GameData {
 					// that conflict.
 					if (t.owningCity != null) {
 						t.owningCity = ResolveTileOwnershipConflict(t.owningCity, city, t);
-						t.owningCity.owner.tileKnowledge.AddTilesToKnown(t);
+						t.owningCity.owner.tileKnowledge.AddVisibilityTo(t);
 						continue;
 					}
 
 					t.owningCity = city;
-					t.owningCity.owner.tileKnowledge.AddTilesToKnown(t);
+					t.owningCity.owner.tileKnowledge.AddVisibilityTo(t);
 				}
 			}
 		}

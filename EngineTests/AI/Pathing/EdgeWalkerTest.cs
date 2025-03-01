@@ -128,7 +128,7 @@ namespace EngineTests {
 			return result;
 		}
 
-		private Player player = new();
+		private Player player = new(new GameMap());
 		private MapUnit nonLandUnit = MakeWaterUnit();
 		private Tile hill  = new(ID.None("")) {
 			baseTerrainType = new() {
@@ -201,7 +201,7 @@ namespace EngineTests {
 			UnitWalker walker = new(nonLandUnit);
 			Tile start = coast;
 			nonLandUnit.owner = player;
-			Player otherPlayer =new();
+			Player otherPlayer =new(new GameMap());
 
 			// Set up a neighbor on land with a city of the same owner.
 			Tile end = hill;
