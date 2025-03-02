@@ -31,10 +31,6 @@ namespace C7GameData {
 			return knownTiles.Contains(t);
 		}
 
-		public bool isTileKnownOrBorder(Tile t) {
-			return knownTiles.Contains(t) || borderTiles.Contains(t);
-		}
-
 		public bool isTileVisible(Tile t) {
 			var index = GetBitIndex(t);
 			byte mask = (byte)(1 << (index % 8));
@@ -71,7 +67,6 @@ namespace C7GameData {
 		// from a .sav file
 		internal bool AddKnowledgeOf(Tile tile) {
 			bool added = knownTiles.Add(tile);
-			SetNeighborsAsBorderIfNotKnownAlready(tile);
 			return added;
 		}
 

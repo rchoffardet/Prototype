@@ -506,8 +506,8 @@ public partial class LooseView : Node2D {
 							for (int X = visRegion.getRowStartX(Y); X < visRegion.lowerRightX; X += 2) {
 								Tile tile = gD.map.tileAt(X, Y);
 								if (tile != Tile.NONE) {
-									VisibleTile invisibleTile = new VisibleTile { tile = tile, tileCenter = MapView.cellSize * new Vector2(X + 1, Y + 1) };
-									layer.drawObject(this, gD, tile, invisibleTile.tileCenter);
+									var vt = new VisibleTile { tile = tile, tileCenter = MapView.cellSize * new Vector2(X + 1, Y + 1) };
+									layer.drawObject(this, gD, tile, vt.tileCenter);
 								}
 							}
 				}
@@ -519,7 +519,7 @@ public partial class LooseView : Node2D {
 			return true;
 		}
 		TileKnowledge knowledge = gameDataAccess.gameData.GetHumanPlayers()[0].tileKnowledge;
-		return tile != Tile.NONE && (knowledge.isTileKnown(tile) || knowledge.isBorderOfTileKnowlege(tile));
+		return tile != Tile.NONE;
 	}
 }
 
